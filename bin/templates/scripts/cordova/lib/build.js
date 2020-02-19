@@ -61,24 +61,6 @@ function createProjectObject (projectPath, projectName) {
 }
 
 /**
- * Gets the resolved bundle identifier from a project.
- * Resolves the variable set in INFO.plist, if any (simple case)
- *
- * @param {*} projectObject
- */
-function getBundleIdentifier (projectObject) {
-    var packageName = projectObject.getPackageName();
-    var bundleIdentifier = packageName;
-
-    var variables = packageName.match(/\$\((\w+)\)/); // match $(VARIABLE), if any
-    if (variables && variables.length >= 2) {
-        bundleIdentifier = projectObject.xcode.getBuildProperty(variables[1]);
-    }
-
-    return bundleIdentifier;
-}
-
-/**
  * Returns a promise that resolves to the default simulator target; the logic here
  * matches what `cordova emulate ios` does.
  *
@@ -233,8 +215,6 @@ module.exports.run = function (buildOpts) {
                 return;
             }
 
-            var project = createProjectObject(projectPath, projectName);
-            var bundleIdentifier = getBundleIdentifier(project);
             var exportOptions = { 'compileBitcode': false, 'method': 'development' };
 
             if (buildOpts.packageType) {
@@ -249,8 +229,13 @@ module.exports.run = function (buildOpts) {
                 exportOptions.teamID = buildOpts.developmentTeam;
             }
 
-            if (buildOpts.provisioningProfile && bundleIdentifier) {
-                exportOptions.provisioningProfiles = { [ bundleIdentifier ]: String(buildOpts.provisioningProfile) };
+            if (buildOpts.provisioningProfile && buildOpts.bundleIdentifier) {
+                exportOptions.provisioningProfiles = {
+                  [ buildOpts.bundleIdentifier ]: String(buildOpts.provisioningProfile)
+                };
+                if (buildOpts.shareBundleIdentifier && buildOpts.shareProvisioningProfile) {
+                  exportOptions.provisioningProfiles[buildOpts.shareBundleIdentifier] = buildOpts.shareProvisioningProfile;
+                }
                 exportOptions.signingStyle = 'manual';
             }
 
