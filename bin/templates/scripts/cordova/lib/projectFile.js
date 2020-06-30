@@ -32,9 +32,10 @@ function parseProjectFile (locations) {
     const project_dir = locations.root;
     const pbxPath = locations.pbxproj;
 
-    if (cachedProjectFiles[project_dir]) {
-        return cachedProjectFiles[project_dir];
-    }
+    // 避免在不同的階段讀取到不一致的專案檔，故不讀取快取
+    // if (cachedProjectFiles[project_dir]) {
+    //     return cachedProjectFiles[project_dir];
+    // }
 
     const xcodeproj = xcode.project(pbxPath);
     xcodeproj.parseSync();
