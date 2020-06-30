@@ -214,8 +214,9 @@ module.exports.run = buildOpts => {
                 return;
             }
 
-            const project = createProjectObject(projectPath, projectName);
-            const bundleIdentifier = project.getPackageName();
+            // bundleIdentifier 改由 buildOpts 代入
+            // const project = createProjectObject(projectPath, projectName);
+            // const bundleIdentifier = project.getPackageName();
             const exportOptions = { compileBitcode: false, method: 'development' };
 
             if (buildOpts.packageType) {
@@ -230,8 +231,16 @@ module.exports.run = buildOpts => {
                 exportOptions.teamID = buildOpts.developmentTeam;
             }
 
-            if (buildOpts.provisioningProfile && bundleIdentifier) {
-                exportOptions.provisioningProfiles = { [bundleIdentifier]: String(buildOpts.provisioningProfile) };
+            // bundleIdentifier 改由 buildOpts 代入
+            // if (buildOpts.provisioningProfile && bundleIdentifier) {
+            //     exportOptions.provisioningProfiles = { [ bundleIdentifier ]: String(buildOpts.provisioningProfile) };
+            if (buildOpts.provisioningProfile && buildOpts.bundleIdentifier) {
+                exportOptions.provisioningProfiles = {
+                  [ buildOpts.bundleIdentifier ]: String(buildOpts.provisioningProfile)
+                };
+                if (buildOpts.shareBundleIdentifier && buildOpts.shareProvisioningProfile) {
+                  exportOptions.provisioningProfiles[buildOpts.shareBundleIdentifier] = buildOpts.shareProvisioningProfile;
+                }
                 exportOptions.signingStyle = 'manual';
             }
 
